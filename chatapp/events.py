@@ -1,9 +1,8 @@
-from flask import request
+from flask import request, session
 from flask_socketio import emit
-from .extensions import socketio
+from .extensions import socketio, cursor, con
 import datetime
 from time import sleep
-
 
 class Client:
     def __init__(self, ip, sid, username):
@@ -68,11 +67,64 @@ def handle_connect():
     clients[ip_addr].connect()
 
 
+@socketio.on("login")
+def user_login(data):
+    username = data["username"]
+    psw = data["password"]
+
+    cursor.execute("select * from accounts where username=%s AND password=%s",
+                    (username, psw))
+    user = cursor.fetchone()
+    if user:
+        # cursor.execute("select email from accounts where username=%s",
+        #                (username))
+        # email = cursor.fetchone()
+
+        emit("login_response",{"success":True})
+    else:
+        emit("login_response",{'success':False})
+
+@socketio.on("reg")
+def user_reg(data):
+    email = data["email"]
+    username = data["username"]
+    psw = data["password"]
+
+    cursor.execute("select * from accounts where username=%s",
+                   (username))
+    
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        emit("existing_user",{"error":True})
+    else:
+        cursor.execute("insert into accounts (username,password,email) values (%s,%s,%s)",
+                       (username,psw,email))
+        con.commit()
+        emit("reg_response",{"success":True})
+
+
+@socketio.on("forgot_psw")
+def change_psw(data):
+    username = data["username"]
+    newpassword = data["newpassword"]
+    cursor.execute("select * from accounts where username=%s",
+                   (username))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        cursor.execute("update accounts set password=%s where username=%s",
+                       (newpassword,username))
+        con.commit()
+        emit("change_psw",{"success":True})
+    else:
+        emit("existing_user",{"error":True})
+
+
 @socketio.on("user_chat_join")
 def handle_username_send(username):
     ip_addr = request.remote_addr
     clients[ip_addr].set_username(username)
-
     if (
         clients[ip_addr].get_disconnect_time_diff() > 10
         and not clients[ip_addr].is_connected()
