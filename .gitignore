@@ -3,3 +3,12 @@
 
 # Python
 __pycache__
+
+# VS Code config
+.vscode
+
+# Fonts
+*.ttf
+*.woff
+*.woff2
+

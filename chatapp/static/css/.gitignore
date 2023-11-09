@@ -1,0 +1,3 @@
+# CSS and CSS.MAP files in static folder (cause of using SCSS)
+*.css
+*.css.map
