@@ -1,10 +1,62 @@
-from flask import Blueprint, render_template, url_for
+# -*- coding: cp1251 -*-
+from flask import Flask, Blueprint, request, jsonify, session, render_template, url_for
+from .AesKey import preSet
+from .credential import *
+import uuid
 
 main = Blueprint("main", __name__)
 
+modulus,exponent, s_key=preSet() #Инициализация констант для шифрования rsa
+
+clear_file() #Очистка файла all_credits.txt
+
 @main.route("/")
 def index():
-    return render_template("index.html")
+    global exponent
+    global modulus
+    client_id = session.get('client_id')
+    if  not client_id or not exponent or not modulus:
+        client_id = str(uuid.uuid4())
+        #Вариант инициализации клиента через порт
+        #session['client_id'] = client_id
+        #client_ip = request.remote_addr
+        #client_port = request.environ['REMOTE_PORT']
+        #client_ip_port = f"{client_ip}:{client_port}"
+        #session['client_ip_port'] = client_ip_port 
+        
+        
+    return render_template('index.html', client_id=client_id,
+                          exponent=exponent, modulus=modulus) #Инициализация скрытой формы
+
+
+#Используется для проверки достоверности используемого client_id
+@main.route('/get_client_id', methods=['GET'])
+def get_client_id():
+    client_id = session.get('client_id')
+    return jsonify({'client_id': client_id})
+
+@main.route('/process_data', methods=['POST'])
+def process_data():
+    session['client_id'] = request.json.get('client_id')
+    session['e_msg'] = request.json.get('e_msg') #Пароль AES, зашифрованный RSA
+
+    client_id = session.get('client_id')
+    e_msg = session.get('e_msg')
+
+    #client_ip = request.remote_addr
+    #client_port = request.environ['REMOTE_PORT']
+    #client_ip_port = f"{client_ip}:{client_port}"
+
+    
+    d_msg=pow(int(e_msg), s_key, modulus) #Расшифровка пароля для AES
+
+    add_aes_key(client_id, d_msg) #Сохранение пароля клиента в файл all_credentials.txt
+
+    response_data = {'message': 'Data is processed', 'd_msg': get_aes_key(client_id),
+                    'client_id': client_id, 'client_ip_port': client_ip_port} #Сообщение проверки
+    return jsonify(response_data)
+
+
 
 @main.route('/chat')
 def chat():
@@ -17,4 +69,3 @@ def register():
 @main.route('/forgot_psw')
 def forgot_psw():
     return render_template('forgot_psw.html')
-

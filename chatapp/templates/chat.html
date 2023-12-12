@@ -4,28 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for( 'static', filename='css/chat.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for( 'static', filename='css/chat.css')}}" />
 
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="header-text" id="header-text" style="color: aquamarine;">CryptoPunks</div>
-    <div class="chat-box" id="chat-box">
-        <div class="msg-container show">
-            <div class="msg-user" style="background-color: rgb(0, 219, 146);"> Борода </div>
-            <div class="msg-text"> Здарова, криптопанки! </div>
-        </div>
-        
-    </div>
-    <div class="msg-input-container">
-        <input type="text" class="form-control custom-text msg-input-form" id="msg-input-form" placeholder="Введите сообщение" required>
-        <button type="submit" class="btn btn-primary send-msg-btn" id='send-msg-btn'>Отправить</button>
-    </div>
-  </div>
+    <div class="container">
+        <div class="header-text" id="header-text" style="color: aquamarine;">CryptoPunks</div>
+        <div class="chat-box" id="chat-box">
+            <div class="msg-container show">
+                <div class="msg-user" style="background-color: rgb(0, 219, 146);"> Борода </div>
+                <div class="msg-text"> Здарова, криптопанки! </div>
+            </div>
 
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+        </div>
+        <div class="msg-input-container">
+            <input type="text" class="form-control custom-text msg-input-form" id="msg-input-form" placeholder="Введите сообщение" required>
+            <button type="submit" class="btn btn-primary send-msg-btn" id='send-msg-btn'>Отправить</button>
+        </div>
+    </div>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
 </html>
