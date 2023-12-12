@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CryptoPunks</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="{{ url_for( 'static', filename='css/login.css')}}"/>
-  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CryptoPunks</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for( 'static', filename='css/login.css')}}" />
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-6">
-        <h1 class="text-center text-white mb-4 welcome">Добро пожаловать в CryptoPunks</h1>
-        <form class="centralised">
-          <div class="form-group">
-            <input type="text" class="form-control custom-text" id="username" name="username" placeholder="Введите ваше имя" required>
-          </div>
-          <div class="form-group">
-            <input type="password" class ="form-control custom-text" id="password" name="password" placeholder="Введите пароль" required>
-          </div>   
-          <div class="text-center">
-            <button type="submit" class="btn btn-primary custom-button" id="join-btn">Лэдс гиринг!</button>
-          </div>
-        </form>
-         <div class="text-center" style="margin-top: 10px;">
-          <p style="color: rgb(244, 241, 241);">Забыли пароль? <a href="{{ url_for('main.forgot_psw') }}"><span style="color: rgb(6, 6, 6);">Востановить пароль</span></a></p>
-           <p style="color: rgb(244, 241, 241);">Нет аккаунта? <a href="{{ url_for('main.register') }}"><span style="color: rgb(6, 6, 6);">Зарегистрируйтесь</span></a></p>
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <h1 class="text-center text-white mb-4 welcome">Добро пожаловать в CryptoPunks</h1>
+                <form id="dataForm" style="display: none;">
+                    <input type="hidden" name="client_id" value="{{ client_id }}">
+                    <input type="hidden" name="exponent" value="{{ exponent }}">
+                    <input type="hidden" name="modulus" value="{{ modulus }}">
+                </form>
+                <form class="centralised">
+                    <div class="form-group">
+                        <input type="text" class="form-control custom-text" id="username" name="username" placeholder="Введите ваше имя" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control custom-text" id="password" name="password" placeholder="Введите пароль" required>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary custom-button" id="join-btn">Лэдс гиринг!</button>
+                    </div>
+                </form>
+                <div class="text-center" style="margin-top: 10px;">
+                    <p style="color: rgb(244, 241, 241);">Забыли пароль? <a href="{{ url_for('main.forgot_psw') }}"><span style="color: rgb(6, 6, 6);">Востановить пароль</span></a></p>
+                    <p style="color: rgb(244, 241, 241);">Нет аккаунта? <a href="{{ url_for('main.register') }}"><span style="color: rgb(6, 6, 6);">Зарегистрируйтесь</span></a></p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rsa.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>
