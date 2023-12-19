@@ -1,18 +1,21 @@
 from flask import request, session
 from flask_socketio import emit
 from .extensions import socketio, cursor, con
-import os
+from os import getenv
 from dotenv import load_dotenv
 import random
 import string
-
+from hashlib import sha256
 
 def generate_client_id() -> str:
-    return "".join(random.choices(string.digits, k=10))
+    return str(random.choice(string.digits[1:])) + "".join(random.choices(string.digits, k=8))
+
+def hash_sha256(str_to_hash: str) -> str:
+    return sha256(str_to_hash.encode('utf-8')).hexdigest()
 
 
 load_dotenv()
-CLIENTS_TABLE_NAME = os.getenv("CLIENTS_TABLE_NAME")
+CLIENTS_TABLE_NAME = getenv("CLIENTS_TABLE_NAME")
 
 
 @socketio.on("connect")
@@ -30,9 +33,10 @@ def handle_connect():
 def user_login(data):
     username = data["username"]
     psw = data["password"]
+    psw_hash = hash_sha256(psw)
 
     cursor.execute(
-        f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}' AND password = '{psw}'"
+        f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}' AND passwordhash = X'{psw_hash}'"
     )
     user = cursor.fetchone()
 
@@ -47,6 +51,7 @@ def user_reg(data):
     email = data["email"]
     username = data["username"]
     psw = data["password"]
+    psw_hash = hash_sha256(psw)
 
     cursor.execute(
         f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}'"
@@ -59,7 +64,7 @@ def user_reg(data):
     else:
         client_id = generate_client_id()
         cursor.execute(
-            f"INSERT INTO {CLIENTS_TABLE_NAME} (id, clientname, password, email) VALUES ({client_id}, '{username}', '{psw}', '{email}')",
+            f"INSERT INTO {CLIENTS_TABLE_NAME} (id, clientname, passwordhash, email) VALUES ({client_id}, '{username}', X'{psw_hash}', '{email}')",
         )
         con.commit()
         emit("reg_response", {"success": True})
@@ -69,6 +74,7 @@ def user_reg(data):
 def change_psw(data):
     username = data["username"]
     newpassword = data["newpassword"]
+    psw_hash = hash_sha256(newpassword)
 
     cursor.execute(
         f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}'"
@@ -77,7 +83,7 @@ def change_psw(data):
 
     if existing_user:
         cursor.execute(
-            f"UPDATE ACCOUNTS SET password = '{newpassword}' WHERE clientname = '{username}'"
+            f"UPDATE ACCOUNTS SET passwordhash = X'{psw_hash}' WHERE clientname = '{username}'"
         )
         con.commit()
         emit("change_psw", {"success": True})
