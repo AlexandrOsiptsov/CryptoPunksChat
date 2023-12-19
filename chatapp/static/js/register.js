@@ -23,7 +23,7 @@ document.getElementById("register-btn").addEventListener("click", function(event
     //var errorMessage = document.getElementById("error-message");
 
     if (email != "" && username != "" && password != "" && confirmPassword != "" && password === confirmPassword) {
-        socket.emit("reg",{username:username,password:password,email:email})
+        socket.emit("reg", {username: username, password: password, email: email})
         //window.location.href = "/";
     } 
     else {

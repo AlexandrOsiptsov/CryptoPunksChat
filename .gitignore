@@ -1,8 +1,12 @@
+# Enviroment
+.env
+
 # MacOS
 .DS_Store
 
 # Python
 __pycache__
+.venv
 
 # VS Code config
 .vscode
@@ -11,4 +15,3 @@ __pycache__
 *.ttf
 *.woff
 *.woff2
-
