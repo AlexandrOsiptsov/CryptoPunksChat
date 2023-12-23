@@ -10,9 +10,9 @@ def index():
 def chat():
     return render_template('chat.html')
 
-@main.route('/register')
-def register():
-    return render_template('register.html')
+@main.route('/registration')
+def registration():
+    return render_template('registration.html')
 
 @main.route('/forgot_psw')
 def forgot_psw():

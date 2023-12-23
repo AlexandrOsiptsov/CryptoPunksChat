@@ -1,21 +1,47 @@
-from flask import request, session
+from flask import request
 from flask_socketio import emit
 from .extensions import socketio, cursor, con
 from os import getenv
 from dotenv import load_dotenv
 import random
+import smtplib
+from email.mime.text import MIMEText
 import string
 from hashlib import sha256
-
-def generate_client_id() -> str:
-    return str(random.choice(string.digits[1:])) + "".join(random.choices(string.digits, k=8))
-
-def hash_sha256(str_to_hash: str) -> str:
-    return sha256(str_to_hash.encode('utf-8')).hexdigest()
 
 
 load_dotenv()
 CLIENTS_TABLE_NAME = getenv("CLIENTS_TABLE_NAME")
+SMTP_SERVER_ADDRESS = getenv("SMTP_SERVER_ADDRESS")
+SMTP_SERVER_PORT = getenv("SMTP_SERVER_PORT")
+AUTH_CODE_SENDER_EMAIL = getenv("AUTH_CODE_SENDER_EMAIL")
+AUTH_CODE_SENDER_PASSWORD = getenv("AUTH_CODE_SENDER_PASSWORD")
+
+
+def generate_client_id() -> str:
+    return str(random.choice(string.digits[1:])) + "".join(random.choices(string.digits, k=8))
+
+def generate_auth_code() -> str:
+    return ''.join(random.choices(string.digits, k=6))
+
+def hash_sha256(str_to_hash: str) -> str:
+    return sha256(str_to_hash.encode('utf-8')).hexdigest()
+
+def send_verification_code(recipient_email: str) -> str:
+    sender_email = AUTH_CODE_SENDER_EMAIL
+    sender_password = AUTH_CODE_SENDER_PASSWORD
+    server = smtplib.SMTP(SMTP_SERVER_ADDRESS, SMTP_SERVER_PORT)
+    server.starttls()
+    server.login(sender_email, sender_password)
+
+    auth_code = generate_auth_code()
+    msg = MIMEText(auth_code)
+    msg['Subject'] = 'Код аутентификации'
+    msg['To'] = recipient_email
+    msg['From'] = sender_email
+    server.sendmail(sender_email, recipient_email, msg.as_string())
+
+    return auth_code
 
 
 @socketio.on("connect")
@@ -44,6 +70,23 @@ def user_login(data):
         emit("login_response", {"success": True})
     else:
         emit("login_response", {"success": False})
+
+
+# Клиент отправил почту (отправка кода верификации на почту клиента)
+@socketio.on("email_code_request")
+def email_code_request(data):
+    recipient_email = data["email"]
+    auth_code = send_verification_code(recipient_email)
+
+    emit("email_code_response", {"email": recipient_email})
+    print(f'Код отправлен: {auth_code}')
+
+
+# Клиент отправил код верификации (проверка кода верификации)
+@socketio.on("email_code_verification")
+def email_code_verification(data):
+    email = data["email"]
+    code = data["code"]
 
 
 @socketio.on("reg")

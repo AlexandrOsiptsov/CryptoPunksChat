@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="{{ url_for( 'static', filename='css/login.css')}}"/>
   <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
 </head>
+
 <body>
   <div class="container">
     <div class="row justify-content-center mt-5">
@@ -24,11 +26,11 @@
           <div class="text-center">
             <button type="submit" class="btn btn-primary custom-button" id="join-btn">Лэдс гиринг!</button>
           </div>
+          <div class="subline">
+            <p> Забыли пароль? <a class="link" href="{{ url_for('main.forgot_psw') }}"> Восстановление пароля </a></p>
+            <p> Нет аккаунта? <a class="link" href="{{ url_for('main.registration') }}"> Регистрация </a> </p>
+          </div>
         </form>
-         <div class="text-center" style="margin-top: 10px;">
-          <p style="color: rgb(244, 241, 241);">Забыли пароль? <a href="{{ url_for('main.forgot_psw') }}"><span style="color: rgb(6, 6, 6);">Востановить пароль</span></a></p>
-           <p style="color: rgb(244, 241, 241);">Нет аккаунта? <a href="{{ url_for('main.register') }}"><span style="color: rgb(6, 6, 6);">Зарегистрируйтесь</span></a></p>
-        </div>
       </div>
     </div>
   </div>
