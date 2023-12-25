@@ -109,7 +109,9 @@ def email_code_request(data):
 def email_code_verification(data):
     clientEmail = data["email"]
     clientAuthCode = data["authCode"]
-    serverAuthCode = email_authcodes_dict[clientEmail]
+    
+    with email_authcodes_dict_mutex:
+        serverAuthCode = email_authcodes_dict[clientEmail]
 
     if clientAuthCode == serverAuthCode:
         # Перевести клиента на страницу заполнения данных
