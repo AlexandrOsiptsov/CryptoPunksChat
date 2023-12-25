@@ -34,6 +34,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    transition: vars.$error-transition;
   }
 
   .subline {
@@ -59,6 +61,7 @@
   .custom-text {
     transition: box-shadow 0.3s;
     width: 20vw;
+    transition: vars.$error-transition;
   }
   .custom-text:focus {
     box-shadow: 0 0 10px vars.$light-color;
@@ -72,6 +75,7 @@
 
     font-weight: 600;
     box-shadow: 2px 2px 6px rgba(black, 0.35);
+    transition: vars.$error-transition;
   }
   .custom-button:hover:enabled {
     box-shadow: 0 0 7px vars.$light-color;
@@ -91,4 +95,14 @@
                 -5px 0 10px rgba(vars.$error-color, 0.7),
                 0 5px 10px rgba(vars.$error-color, 0.7), 
                 0 -5px 10px rgba(vars.$error-color, 0.7);
+  }
+
+  .email-error {
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(black, 0.35);
+    font-size: 17px;
+    font-weight: 500;
+    color: vars.$error-color;
+
+    transition: vars.$error-transition;
   }

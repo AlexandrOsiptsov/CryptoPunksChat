@@ -8,6 +8,7 @@ import smtplib
 from email.mime.text import MIMEText
 import string
 from hashlib import sha256
+import threading
 
 
 load_dotenv()
@@ -16,6 +17,9 @@ SMTP_SERVER_ADDRESS = getenv("SMTP_SERVER_ADDRESS")
 SMTP_SERVER_PORT = getenv("SMTP_SERVER_PORT")
 AUTH_CODE_SENDER_EMAIL = getenv("AUTH_CODE_SENDER_EMAIL")
 AUTH_CODE_SENDER_PASSWORD = getenv("AUTH_CODE_SENDER_PASSWORD")
+
+email_authcodes_dict: dict[str, str] = {}
+email_authcodes_dict_mutex = threading.Lock()
 
 
 def generate_client_id() -> str:
@@ -27,22 +31,32 @@ def generate_auth_code() -> str:
 def hash_sha256(str_to_hash: str) -> str:
     return sha256(str_to_hash.encode('utf-8')).hexdigest()
 
-def send_verification_code(recipient_email: str) -> str:
+def send_verification_code(recipient_email: str) -> str | None:
     sender_email = AUTH_CODE_SENDER_EMAIL
     sender_password = AUTH_CODE_SENDER_PASSWORD
-    server = smtplib.SMTP(SMTP_SERVER_ADDRESS, SMTP_SERVER_PORT)
-    server.starttls()
-    server.login(sender_email, sender_password)
+    try:
+        server = smtplib.SMTP(SMTP_SERVER_ADDRESS, SMTP_SERVER_PORT)
+        server.starttls()
+        server.login(sender_email, sender_password)
 
-    auth_code = generate_auth_code()
-    msg = MIMEText(auth_code)
-    msg['Subject'] = 'Код аутентификации'
-    msg['To'] = recipient_email
-    msg['From'] = sender_email
-    server.sendmail(sender_email, recipient_email, msg.as_string())
+        auth_code = generate_auth_code()
+        msg = MIMEText(auth_code)
+        msg['Subject'] = 'Код аутентификации'
+        msg['To'] = recipient_email
+        msg['From'] = sender_email
+        server.sendmail(sender_email, recipient_email, msg.as_string())
+
+    except Exception as e:
+        print(f'Поймано исключение: {e}')
+        return None
 
     return auth_code
 
+def check_email_exists_db(email: str) -> bool:
+    cursor.execute(
+        f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE email = '{email}'"
+    )
+    return cursor.fetchone()
 
 @socketio.on("connect")
 def handle_connect():
@@ -76,18 +90,32 @@ def user_login(data):
 @socketio.on("email_code_request")
 def email_code_request(data):
     recipient_email = data["email"]
-    auth_code = send_verification_code(recipient_email)
 
-    emit("email_code_response", {"email": recipient_email})
-    print(f'Код отправлен: {auth_code}')
+    # Если такая почта уже есть в БД, сообщить на клиент
+    if check_email_exists_db(recipient_email):
+        emit("email_error", {"error_msg": "Пользователь с таким email уже существует"})
+    else:
+        auth_code = send_verification_code(recipient_email)
 
+        # Запись пары (почта: код) в словарь с защитой от множественного использования (мьютекс)
+        with email_authcodes_dict_mutex:
+            email_authcodes_dict[recipient_email] = auth_code
+
+        response = {"success": auth_code is not None, "email": recipient_email}
+        emit("email_code_response", response)
 
 # Клиент отправил код верификации (проверка кода верификации)
-@socketio.on("email_code_verification")
+@socketio.on("auth_code_verification")
 def email_code_verification(data):
-    email = data["email"]
-    code = data["code"]
+    clientEmail = data["email"]
+    clientAuthCode = data["authCode"]
+    serverAuthCode = email_authcodes_dict[clientEmail]
 
+    if clientAuthCode == serverAuthCode:
+        # Перевести клиента на страницу заполнения данных
+        emit("auth_code_verification_error", {"error_msg": "Успех! Код верный!"})
+    else:
+        emit("auth_code_verification_error", {"error_msg": "Неверный код ауентификации"})
 
 @socketio.on("reg")
 def user_reg(data):

@@ -1,27 +1,29 @@
 var socket = io();
 
-socket.on("login_response", function(response) {
-    if (response.success) {
-        
-         socket.emit('navigate', { url: '/chat' });
-    } 
-    else {
-      alert("Неправильное имя пользователя или пароль");
-    }
-  });
+sumbitButton = document.getElementById("join-btn")
 
-document.getElementById("join-btn").addEventListener("click", function(event) {
+sumbitButton.addEventListener("click", function(event) {
     event.preventDefault();
 
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
 
     if (username != '' && password != '') {
-        socket.emit("login",{username:username,password:password})
-        socket.emit("user_chat_join", { username: username});
+        socket.emit("login", { username: username, password: password })
+        socket.emit("user_chat_join", { username: username });
         localStorage.setItem('username', username);
-       //socket.emit('navigate', { url: '/chat' });
+
+        sumbitButton.disabled = true
     }
+});
+
+socket.on("login_response", function(response) {
+  if (response.success) {
+       socket.emit('navigate', { url: '/chat' });
+  } 
+  else {
+    alert("Неправильное имя пользователя или пароль");
+  }
 });
 
 socket.on('navigate', function(data) {
