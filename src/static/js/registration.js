@@ -54,6 +54,7 @@ let emailInput = document.getElementById("emailInput");
 let registrationButton = document.getElementById("registrationButton");
 registrationButton.disabled = true
 
+
 // Проверка валидности во время ввода адреса почты
 emailInput.addEventListener('input', function() {
   const emailInputVal = emailInput.value;
@@ -74,6 +75,7 @@ registrationButton.addEventListener("click", function(event) {
 
     if (validateEmail(emailInputVal)) {
         socket.emit("email_code_request", { email: emailInputVal });
+        localStorage.setItem("email", emailInputVal);
         registrationButton.disabled = true
         emailInput.disabled = true
     } 
@@ -137,14 +139,21 @@ socket.on("email_error", function(response) {
 });
 
 let codeInputBlock = document.getElementById("codeInputBlock");
+// socket.on("auth_code_verification_error", function(response) {
+//   if (response["error_msg"] ==  "Успех! Код верный!") {
+//     setCodeErrorMsg(response["error_msg"], codeInputBlock, codeSumbitButton);
+//     window.location.href = "/registration2";
+//   } else {
+//   setCodeErrorMsg(response["error_msg"], codeInputBlock, codeSumbitButton);
+//   codeInputField.disabled = false;
+//   }
+// });
+socket.on("auth_code_verification_success",function(){
+  window.location.href = "/next_registration";
+});
 socket.on("auth_code_verification_error", function(response) {
+  // Обработка ошибки
   setCodeErrorMsg(response["error_msg"], codeInputBlock, codeSumbitButton);
   codeInputField.disabled = false;
 });
 
-socket.on("reg_response", function(response) {
-  if (response.success) {
-        alert("Регистрация выполнена")
-        window.location.href = "/";
-  } 
-});

@@ -115,24 +115,31 @@ def email_code_verification(data):
 
     if clientAuthCode == serverAuthCode:
         # Перевести клиента на страницу заполнения данных
-        emit("auth_code_verification_error", {"error_msg": "Успех! Код верный!"})
+    #     emit("auth_code_verification_error", {"error_msg": "Успех! Код верный!"})
+    # else:
+    #     emit("auth_code_verification_error", {"error_msg": "Неверный код ауентификации"})
+        emit("auth_code_verification_success")
     else:
-        emit("auth_code_verification_error", {"error_msg": "Неверный код ауентификации"})
+        emit("auth_code_verification_error", {"error_msg": "Код неверный!"})
+
 
 @socketio.on("reg")
 def user_reg(data):
+
     email = data["email"]
     username = data["username"]
     psw = data["password"]
     psw_hash = hash_sha256(psw)
 
+    print(f"name = {username}")
+    print(f"email = {email}")
+    print(f"psw = {psw}")
+    print(f"hash = {psw_hash}")
+
     cursor.execute(
         f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}'"
     )
-
-    existing_user = cursor.fetchone()
-
-    if existing_user:
+    if cursor.fetchone():
         emit("existing_user", {"error": True})
     else:
         client_id = generate_client_id()
@@ -156,7 +163,7 @@ def change_psw(data):
 
     if existing_user:
         cursor.execute(
-            f"UPDATE ACCOUNTS SET passwordhash = X'{psw_hash}' WHERE clientname = '{username}'"
+            f"UPDATE {CLIENTS_TABLE_NAME} SET passwordhash = X'{psw_hash}' WHERE clientname = '{username}'"
         )
         con.commit()
         emit("change_psw", {"success": True})

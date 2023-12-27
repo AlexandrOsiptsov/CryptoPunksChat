@@ -20,10 +20,13 @@ document.getElementById("forgot-btn").addEventListener("click", function(event) 
     let newpassword = document.getElementById("newpassword").value;
     let confirmNEWPassword = document.getElementById("confirm-newpassword").value;
 
-    if (username != "" && newpassword != "" && confirmNEWPassword != "" && newpassword === confirmNEWPassword) {
-        socket.emit("forgot_psw",{username:username,newpassword:newpassword,confirmNEWPassword:confirmNEWPassword})
-    } 
+    if (newpassword != confirmNEWPassword){
+      alert('Пароли не совпадают');
+    }
+    else if (username == '' ||  newpassword == '' ||  confirmNEWPassword == ''){
+      alert('Заполни все поля');
+    }
     else {
-        alert('ТЫ ДАУН!!! ЗАПОЛНИ ВСЕ ПОЛЯ ИЛИ ПАРОЛИ НЕ СОВПАДАЮТ')
+      socket.emit("forgot_psw",{username:username,newpassword:newpassword,confirmNEWPassword:confirmNEWPassword})
     }
   });

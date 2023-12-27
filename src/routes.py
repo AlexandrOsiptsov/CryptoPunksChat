@@ -14,7 +14,11 @@ def chat():
 def registration():
     return render_template('registration.html')
 
+@main.route('/next_registration')
+def next_registration():
+    return render_template('next_registration.html')
+
+
 @main.route('/forgot_psw')
 def forgot_psw():
     return render_template('forgot_psw.html')
-
