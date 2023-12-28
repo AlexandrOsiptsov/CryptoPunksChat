@@ -11,13 +11,13 @@ exponent = None
 modulus = None
 s_key = None
 
-#Решето Эратосфена
+#Р РµС€РµС‚Рѕ Р­СЂР°С‚РѕСЃС„РµРЅР°
 def SieveOfEratosthenes(n):
     global first_primes_list  
 
     prime = [True for i in range(n + 1)]
     p = 2
-    count = 0  # Счетчик найденных простых чисел
+    count = 0  # РЎС‡РµС‚С‡РёРє РЅР°Р№РґРµРЅРЅС‹С… РїСЂРѕСЃС‚С‹С… С‡РёСЃРµР»
     while (p * p <= n):
         if (prime[p] == True):
             for i in range(p * p, n + 1, p):
@@ -31,7 +31,7 @@ def SieveOfEratosthenes(n):
             if count == 250: 
                 break
 
-#Поиск первых 500 простых чисел
+#РџРѕРёСЃРє РїРµСЂРІС‹С… 500 РїСЂРѕСЃС‚С‹С… С‡РёСЃРµР»
 def fillPrimeList():
     n = 500 
     print("Finding the first 500 prime numbers...")
@@ -42,7 +42,7 @@ def fillPrimeList():
 def nBitRandom(n):
     return(random.randrange(2**(n-1)+1, 2**n-1))
 
-#Получить n-битное число кандидата на простоту
+#РџРѕР»СѓС‡РёС‚СЊ n-Р±РёС‚РЅРѕРµ С‡РёСЃР»Рѕ РєР°РЅРґРёРґР°С‚Р° РЅР° РїСЂРѕСЃС‚РѕС‚Сѓ
 def getLowLevelPrime(n)->int:
     global first_primes_list 
     
@@ -57,7 +57,7 @@ def getLowLevelPrime(n)->int:
 
     return 0
 
-#Идентификатор прохождения теста Миллера-Рабина
+#РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС…РѕР¶РґРµРЅРёСЏ С‚РµСЃС‚Р° РњРёР»Р»РµСЂР°-Р Р°Р±РёРЅР°
 def isMillerRabinPassed(miller_rabin_candidate):
    
     maxDivisionsByTwo = 0
@@ -86,7 +86,7 @@ def isMillerRabinPassed(miller_rabin_candidate):
             return False
     return True
 
-#Возвращает n-битное простое число
+#Р’РѕР·РІСЂР°С‰Р°РµС‚ n-Р±РёС‚РЅРѕРµ РїСЂРѕСЃС‚РѕРµ С‡РёСЃР»Рѕ
 def  doItPrime(bit_len)-> int:
     print(f"Getting prime {bit_len} bit number...")
     while True:
@@ -98,7 +98,7 @@ def  doItPrime(bit_len)-> int:
     print(f"Getting prime {bit_len} bit number is finished")
     return prime_candidate
 
-#Расширенный алгоритм Евклида
+#Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ Р°Р»РіРѕСЂРёС‚Рј Р•РІРєР»РёРґР°
 def extended_euclidean_algorithm(a, b):
 
     if a == 0:
@@ -107,7 +107,7 @@ def extended_euclidean_algorithm(a, b):
         g, y, x = extended_euclidean_algorithm(b % a, a)
         return g, x - (b // a) * y, y
 
-#Поиск обратного
+#РџРѕРёСЃРє РѕР±СЂР°С‚РЅРѕРіРѕ
 def modular_inverse(e, t):
     print(f"Getting secret RSA key...")
     g, x, y = extended_euclidean_algorithm(e, t)
@@ -117,7 +117,7 @@ def modular_inverse(e, t):
     else:
         return x % t
 
-#Инициализирует все переменные
+#РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РІСЃРµ РїРµСЂРµРјРµРЅРЅС‹Рµ
 def preSet():
     global exponent
     global modulus

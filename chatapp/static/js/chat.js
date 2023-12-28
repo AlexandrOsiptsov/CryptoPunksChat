@@ -30,7 +30,7 @@ function sendMsg(username, message) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-//Преобразование десятичного числа, записанного в строке, в шестнадцатиричное, записанное в строке 
+//РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ РґРµСЃСЏС‚РёС‡РЅРѕРіРѕ С‡РёСЃР»Р°, Р·Р°РїРёСЃР°РЅРЅРѕРіРѕ РІ СЃС‚СЂРѕРєРµ, РІ С€РµСЃС‚РЅР°РґС†Р°С‚РёСЂРёС‡РЅРѕРµ, Р·Р°РїРёСЃР°РЅРЅРѕРµ РІ СЃС‚СЂРѕРєРµ 
 function dec2hex(str) {
     var dec = str.toString().split(''), sum = [], hex = [], i, s
     while (dec.length) {
@@ -51,7 +51,7 @@ function emitMsgSending() {
     var messageTextStr = document.getElementById('msg-input-form').value;
     if (messageTextStr !== '') {
         console.log('Aes key is: ' + localStorage.getItem('AesKey256').toString())
-        //Пример использования шифрования AES
+        //РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ С€РёС„СЂРѕРІР°РЅРёСЏ AES
         var encrypted = CryptoJS.AES.encrypt(messageTextStr, CryptoJS.enc.Hex.parse(dec2hex(localStorage.getItem('AesKey256'))), {
             mode: CryptoJS.mode.ECB,
             padding: CryptoJS.pad.Pkcs7

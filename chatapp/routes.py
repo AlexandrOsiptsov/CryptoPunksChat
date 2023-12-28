@@ -6,9 +6,9 @@ import uuid
 
 main = Blueprint("main", __name__)
 
-modulus,exponent, s_key=preSet() #Инициализация констант для шифрования rsa
+modulus,exponent, s_key=preSet() #РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРЅСЃС‚Р°РЅС‚ РЅРµРѕР±С…РѕРґРёРјС‹С… rsa
 
-clear_file() #Очистка файла all_credits.txt
+clear_file() #РїРѕРґРіРѕС‚РѕРІРєР° С„Р°Р№Р»Р° all_credits.txt
 
 @main.route("/")
 def index():
@@ -17,7 +17,7 @@ def index():
     client_id = session.get('client_id')
     if  not client_id or not exponent or not modulus:
         client_id = str(uuid.uuid4())
-        #Вариант инициализации клиента через порт
+        #РЅРёР¶Рµ РїСЂРёРІРµРґРµРЅ РІРѕР·РјРѕР¶РЅС‹Р№ РІР°СЂРёР°РЅС‚ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
         #session['client_id'] = client_id
         #client_ip = request.remote_addr
         #client_port = request.environ['REMOTE_PORT']
@@ -26,10 +26,10 @@ def index():
         
         
     return render_template('index.html', client_id=client_id,
-                          exponent=exponent, modulus=modulus) #Инициализация скрытой формы
+                          exponent=exponent, modulus=modulus) #РїРµСЂРµРґР°С‡Р° РЅРµРѕР±С…РѕРґРёРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РїСЂРѕС†РµРґСѓСЂС‹ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РєР»СЋС‡Р°
 
 
-#Используется для проверки достоверности используемого client_id
+#РІС‹РїРѕР»РЅСЏРµСЃС‚СЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ client_id Рё РїСЂРёРІСЏР·РєРё Рє РЅРµРјСѓ РєР»СЋС‡Р°
 @main.route('/get_client_id', methods=['GET'])
 def get_client_id():
     client_id = session.get('client_id')
@@ -38,7 +38,7 @@ def get_client_id():
 @main.route('/process_data', methods=['POST'])
 def process_data():
     session['client_id'] = request.json.get('client_id')
-    session['e_msg'] = request.json.get('e_msg') #Пароль AES, зашифрованный RSA
+    session['e_msg'] = request.json.get('e_msg') #Р·Р°РїСЂСЃ РЅР° РєР»СЋС‡ AES, Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹Р№ RSA
 
     client_id = session.get('client_id')
     e_msg = session.get('e_msg')
@@ -48,12 +48,12 @@ def process_data():
     #client_ip_port = f"{client_ip}:{client_port}"
 
     
-    d_msg=pow(int(e_msg), s_key, modulus) #Расшифровка пароля для AES
+    d_msg=pow(int(e_msg), s_key, modulus) #СЂР°СЃС€РёС„СЂРѕРІРєР° РєР»СЋС‡Р° AES
 
-    add_aes_key(client_id, d_msg) #Сохранение пароля клиента в файл all_credentials.txt
+    add_aes_key(client_id, d_msg) #РґРѕР±Р°РІР»РµРЅРёРµ РєР»СЋС‡Р° РІ С„Р°Р№Р» all_credentials.txt
 
     response_data = {'message': 'Data is processed', 'd_msg': get_aes_key(client_id),
-                    'client_id': client_id, 'client_ip_port': client_ip_port} #Сообщение проверки
+                    'client_id': client_id} #СЃРѕРѕР±С‰РµРЅРёРµ РѕС‚Р»Р°РґРєРё
     return jsonify(response_data)
 
 

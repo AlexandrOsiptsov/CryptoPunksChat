@@ -10,7 +10,7 @@ localStorage.setItem('client_id', client_id);
 exponent = exponentInput.value
 modulus = nValInput.value
 
-//Генерируем 256-битное число
+//Р“РµРЅРµСЂРёСЂСѓРµРј 256-Р±РёС‚РЅРѕРµ С‡РёСЃР»Рѕ
 function rnd256() {
     const bytes = new Uint8Array(32);
 
@@ -23,7 +23,7 @@ function rnd256() {
     return BigInt('0x' + bytesHex).toString(10);
 }
 
-//НОД
+//РќРћР”
 function gcd(a, b) {
     if (!a)
         return b;
@@ -32,8 +32,8 @@ function gcd(a, b) {
 
 
 // 'a' - int,  'b' - str.
-//Идея заключается в том, чтобы сделать второе число
-//меньшим или равным первому числу
+//РРґРµСЏ Р·Р°РєР»СЋС‡Р°РµС‚СЃСЏ РІ С‚РѕРј, С‡С‚РѕР±С‹ СЃРґРµР»Р°С‚СЊ РІС‚РѕСЂРѕРµ С‡РёСЃР»Рѕ
+//РјРµРЅСЊС€РёРј РёР»Рё СЂР°РІРЅС‹Рј РїРµСЂРІРѕРјСѓ С‡РёСЃР»Сѓ
 function reduceB(a, b) {
     let mod = 0n;
 
@@ -45,7 +45,7 @@ function reduceB(a, b) {
     return mod;
 }
 
-// Возвращает нод а и b. b может быть очень большим
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРґ Р° Рё b. b РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‡РµРЅСЊ Р±РѕР»СЊС€РёРј
 function gcdLarge(a, b) {
 
     let num = BigInt(reduceB(a, b));
@@ -53,7 +53,7 @@ function gcdLarge(a, b) {
     return gcd(a, num);
 }
 
-// НОД ?= 1
+// РќРћР” ?= 1
 function isGCDone(a, b) {
 
     if (gcdLarge(a, b) != 1)
@@ -62,7 +62,7 @@ function isGCDone(a, b) {
         return true;
 }
 
-// Получаем client ID, modulus и exponent
+// РџРѕР»СѓС‡Р°РµРј client ID, modulus Рё exponent
 function getClientId() {
 
     if (!client_id || !exponent || !modulus) {
@@ -83,7 +83,7 @@ function getClientId() {
     }
 }
 
-// Отображаем инфо клиента 
+// РћС‚РѕР±СЂР°Р¶Р°РµРј РёРЅС„Рѕ РєР»РёРµРЅС‚Р° 
 function displayData() {
 
     if (client_id && exponent && modulus) {
@@ -95,7 +95,7 @@ function displayData() {
 }
 
 
-//Модулярное возведение в степень
+//РњРѕРґСѓР»СЏСЂРЅРѕРµ РІРѕР·РІРµРґРµРЅРёРµ РІ СЃС‚РµРїРµРЅСЊ
 function modPow(expo, base, p) {
     let x = BigInt(base) % p, res = expo & 1n ? x : 1n
     do {
@@ -106,7 +106,7 @@ function modPow(expo, base, p) {
 }
 
 
-// Шифрование
+// РЁРёС„СЂРѕРІР°РЅРёРµ
 function encrypt(msg, exponent, modulus) {
 
     if (msg < 0n || msg >= modulus) {
@@ -121,7 +121,7 @@ function encrypt(msg, exponent, modulus) {
     return modPow(exponent, msg, modulus);
 }
 
-// POST запрос с зашифрованным ключом AES
+// POST Р·Р°РїСЂРѕСЃ СЃ Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹Рј РєР»СЋС‡РѕРј AES
 function sendData() {
   
     let aes_key = BigInt(rnd256());
