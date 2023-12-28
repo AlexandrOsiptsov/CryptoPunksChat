@@ -1,6 +1,7 @@
 from flask import request
 from flask_socketio import emit
 from .extensions import socketio, cursor, con
+import os
 from os import getenv
 from dotenv import load_dotenv
 import random
@@ -9,6 +10,7 @@ from email.mime.text import MIMEText
 import string
 from hashlib import sha256
 import threading
+import subprocess
 
 
 load_dotenv()
@@ -23,13 +25,51 @@ email_authcodes_dict_mutex = threading.Lock()
 
 
 def generate_client_id() -> str:
-    return str(random.choice(string.digits[1:])) + "".join(random.choices(string.digits, k=8))
+    return str(random.choice(string.digits[1:])) + "".join(
+        random.choices(string.digits, k=8)
+    )
 
 def generate_auth_code() -> str:
-    return ''.join(random.choices(string.digits, k=6))
+    return "".join(random.choices(string.digits, k=6))
+
+def generate_client_color():
+    while True:
+        # Генерируем случайные значения для красного, зеленого и синего цветовых компонентов
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+
+        # Вычисляем яркость цвета по формуле YIQ
+        brightness = (r * 299 + g * 587 + b * 114) / 1000
+
+        # Если яркость больше половины максимального значения (255/2 = 127.5),
+        # цвет будет достаточно темным, поэтому продолжаем генерацию
+        if brightness > 127.5:
+            continue
+
+        # Форматируем значения цветовых компонентов в HEX формате
+        hex_color = '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+        return hex_color
+
+def execute_cpp_sha256(input_string):
+    # Получение пути к текущему скрипту
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "SHA256/SHA256")
+
+    # Выполнение исполняемого файла и передача входной строки в качестве аргумента
+    process = subprocess.Popen([file_path, input_string], stdout=subprocess.PIPE)
+    output, _ = process.communicate()
+
+    # Декодирование вывода в строку
+    result = output.decode().strip()
+
+    return result
+
 
 def hash_sha256(str_to_hash: str) -> str:
-    return sha256(str_to_hash.encode('utf-8')).hexdigest()
+    # sha256(str_to_hash.encode("utf-8")).hexdigest() <-- реализация через python-библиотеку
+    return execute_cpp_sha256(str_to_hash.encode('utf-8'))
 
 def send_verification_code(recipient_email: str) -> str | None:
     sender_email = AUTH_CODE_SENDER_EMAIL
@@ -41,22 +81,32 @@ def send_verification_code(recipient_email: str) -> str | None:
 
         auth_code = generate_auth_code()
         msg = MIMEText(auth_code)
-        msg['Subject'] = 'Код аутентификации'
-        msg['To'] = recipient_email
-        msg['From'] = sender_email
+        msg["Subject"] = "Код аутентификации"
+        msg["To"] = recipient_email
+        msg["From"] = sender_email
         server.sendmail(sender_email, recipient_email, msg.as_string())
 
     except Exception as e:
-        print(f'Поймано исключение: {e}')
+        print(f"Поймано исключение: {e}")
         return None
 
     return auth_code
 
+
 def check_email_exists_db(email: str) -> bool:
-    cursor.execute(
-        f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE email = '{email}'"
-    )
+    cursor.execute(f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE email = '{email}'")
     return cursor.fetchone()
+
+def get_clientname_from_email_db(email: str) -> str | None:
+    cursor.execute(f"SELECT clientname FROM {CLIENTS_TABLE_NAME} WHERE email = '{email}'")
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    else:
+        return None
+    
+
 
 @socketio.on("connect")
 def handle_connect():
@@ -69,19 +119,25 @@ def handle_connect():
     print()
 
 
-@socketio.on("login")
+@socketio.on("login_request")
 def user_login(data):
-    username = data["username"]
+    email = data["email"]
     psw = data["password"]
     psw_hash = hash_sha256(psw)
 
-    cursor.execute(
-        f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}' AND passwordhash = X'{psw_hash}'"
-    )
-    user = cursor.fetchone()
+    print(f"========= LOGIN REQUEST {email}, {psw} ==========")
 
-    if user:
-        emit("login_response", {"success": True})
+    cursor.execute(
+        f"SELECT clientname, hexcolor FROM {CLIENTS_TABLE_NAME} WHERE email = '{email}' AND passwordhash = X'{psw_hash}'"
+    )
+    result = cursor.fetchone()
+
+    if result:
+        clientname = result[0]
+        clientcolor = result[1]
+        emit("login_response", {"success": True, "clientname": clientname, "clientcolor": clientcolor})
+
+        print(f"========= LOGIN RESPONSE EMITTED {clientname}, {clientcolor} ==========")
     else:
         emit("login_response", {"success": False})
 
@@ -104,20 +160,17 @@ def email_code_request(data):
         response = {"success": auth_code is not None, "email": recipient_email}
         emit("email_code_response", response)
 
+
 # Клиент отправил код верификации (проверка кода верификации)
 @socketio.on("auth_code_verification")
 def email_code_verification(data):
     clientEmail = data["email"]
     clientAuthCode = data["authCode"]
-    
+
     with email_authcodes_dict_mutex:
         serverAuthCode = email_authcodes_dict[clientEmail]
 
     if clientAuthCode == serverAuthCode:
-        # Перевести клиента на страницу заполнения данных
-    #     emit("auth_code_verification_error", {"error_msg": "Успех! Код верный!"})
-    # else:
-    #     emit("auth_code_verification_error", {"error_msg": "Неверный код ауентификации"})
         emit("auth_code_verification_success")
     else:
         emit("auth_code_verification_error", {"error_msg": "Код неверный!"})
@@ -125,16 +178,10 @@ def email_code_verification(data):
 
 @socketio.on("reg")
 def user_reg(data):
-
     email = data["email"]
     username = data["username"]
     psw = data["password"]
     psw_hash = hash_sha256(psw)
-
-    print(f"name = {username}")
-    print(f"email = {email}")
-    print(f"psw = {psw}")
-    print(f"hash = {psw_hash}")
 
     cursor.execute(
         f"SELECT * FROM {CLIENTS_TABLE_NAME} WHERE clientname = '{username}'"
@@ -143,8 +190,9 @@ def user_reg(data):
         emit("existing_user", {"error": True})
     else:
         client_id = generate_client_id()
+        color = generate_client_color()
         cursor.execute(
-            f"INSERT INTO {CLIENTS_TABLE_NAME} (id, clientname, passwordhash, email) VALUES ({client_id}, '{username}', X'{psw_hash}', '{email}')",
+            f"INSERT INTO {CLIENTS_TABLE_NAME} (id, clientname, passwordhash, email, hexcolor) VALUES ({client_id}, '{username}', X'{psw_hash}', '{email}', '{color}')",
         )
         con.commit()
         emit("reg_response", {"success": True})
@@ -195,10 +243,11 @@ def handle_navigate(url):
 
 @socketio.on("chat_message_request")
 def handle_chat_message_request(data):
-    username = data["username"]
+    clientname = data["clientname"]
+    clientcolor = data["clientcolor"]
     message = data["message"]
 
-    print(f"Message request: {username} : {message}")
+    print(f"Message request: {clientname} : {message}")
 
-    response = {"username": username, "message": message}
+    response = { "clientname": clientname, "clientcolor": clientcolor, "message": message }
     emit("chat_message_response", response, broadcast=True)
