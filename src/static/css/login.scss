@@ -25,6 +25,28 @@ body {
     justify-content: center;
   }
 
+  .subline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    margin-top: 100px;
+    font-weight: 400;
+    font-size: 1.3vmax;
+    text-shadow: 1px 1px 3px rgba(black, 0.35);
+  }
+
+  .link {
+    font-weight: 500;
+    color: vars.$light-color;
+    transition: 0.3s;
+  }
+
+  .link:hover {
+    color: vars.$active-link-color;
+    text-decoration: solid;
+  }
+
   .custom-text {
     transition: box-shadow 0.3s;
     width: 20vw;

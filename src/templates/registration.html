@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title> Регистрация </title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/registration.css')}}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/code_auth_modal.css')}}"/>
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <div id="modalWindow" class="modal-bg hide">
+    <div class="modal-content" id="modalContentBox">
+      <div class="modal-close">
+        <button id="closeIcon"> &times; </button>
+      </div>
+      <div class="modal-header">
+        <div>Введите полученный код</div>
+      </div>
+      <div class="modal-body" id="codeInputBlock">
+        <div class="modal-email", id="modalEmailText"> </div>
+        <input type="number" maxlength="6" class="form-control custom-text msg-input-form" id="codeInputField" placeholder="Код ауентификации">
+        <button class="btn btn-primary custom-button" id="codeSumbitButton"> Отправить </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <h1 class="text-center text-white mb-4 main-title"> Создайте аккаунт </h1>
+        <form class="centralised">
+          <div class="form-group" id="inputBlock">
+            <input type="text" class="form-control custom-text" id="emailInput" placeholder="Введите email" required>
+            <button class="btn btn-primary custom-button" id="registrationButton"> Подтвердить </button>
+          </div>
+          <div class="subline">
+            <p> Уже есть аккаунт? <a class="link" href="{{ url_for('main.index') }}"> Войдите </a> </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/registration.js')}}"></script>
+</body>
+</html>

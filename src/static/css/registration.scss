@@ -1,0 +1,108 @@
+@use "vars" as vars;
+
+ body {
+    background: linear-gradient(to bottom, vars.$grad-color1, vars.$grad-color2);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+
+    font-family: vars.$font;
+  }
+  
+  .align-center {
+    align-items: center;
+  }
+
+  .main-title {
+    font-weight: 600;
+    font-size: 3.2vmax;
+    text-shadow: 2px 2px 6px rgba(black, 0.35)
+  }
+  
+  .centralised {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    transition: vars.$error-transition;
+  }
+
+  .subline {
+    display: flex;
+    color: white;
+    margin-top: 100px;
+    font-weight: 400;
+    font-size: 1.3vmax;
+    text-shadow: 1px 1px 3px rgba(black, 0.35);
+  }
+
+  .link {
+    font-weight: 500;
+    color: vars.$light-color;
+    transition: 0.3s;
+  }
+
+  .link:hover {
+    color: vars.$active-link-color;
+    text-decoration: solid;
+  }
+
+  .custom-text {
+    transition: box-shadow 0.3s;
+    width: 20vw;
+    transition: vars.$error-transition;
+  }
+  .custom-text:focus {
+    box-shadow: 0 0 10px vars.$light-color;
+  }
+  .custom-button {
+    margin-top: 25px;
+    background-image: linear-gradient(to right, vars.$grad-color1, vars.$grad-color2);
+    color: #fff;
+    transition: box-shadow 0.3s;
+    border:none;
+
+    font-weight: 600;
+    box-shadow: 2px 2px 6px rgba(black, 0.35);
+    transition: vars.$error-transition;
+  }
+  .custom-button:hover:enabled {
+    box-shadow: 0 0 7px vars.$light-color;
+    border:none;
+  }
+  .custom-button:active:enabled {
+    transition: none;
+    border:none;
+    box-shadow: 0 0 1px vars.$light-color;
+  }
+  .custom-button:focus {
+    outline: 0 !important;
+  }
+
+  .invalid-input {
+    box-shadow: 5px 0 10px rgba(vars.$error-color, 0.7),
+                -5px 0 10px rgba(vars.$error-color, 0.7),
+                0 5px 10px rgba(vars.$error-color, 0.7), 
+                0 -5px 10px rgba(vars.$error-color, 0.7);
+  }
+
+  .email-error {
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(black, 0.35);
+    font-size: 17px;
+    font-weight: 500;
+    color: vars.$error-color;
+
+    transition: vars.$error-transition;
+  }
